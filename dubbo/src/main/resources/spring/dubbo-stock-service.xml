@@ -66,9 +66,15 @@
     <!--<dubbo:registry address="nacos://127.0.0.1:8848"/> -->
     <dubbo:protocol name="dubbo" port="20882"/>
     <dubbo:service interface="io.seata.samples.dubbo.service.StockService" ref="service" timeout="10000"/>
+    <dubbo:service interface="io.seata.samples.dubbo.service.StockTccAction" ref="stockAction" timeout="10000"/>
+
 
     <bean id="service" class="io.seata.samples.dubbo.service.impl.StockServiceImpl">
         <property name="jdbcTemplate" ref="jdbcTemplate"/>
+    </bean>
+
+    <bean id="stockAction" class="io.seata.samples.dubbo.service.impl.StockTccActionImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate" />
     </bean>
 
     <bean class="io.seata.spring.annotation.GlobalTransactionScanner">

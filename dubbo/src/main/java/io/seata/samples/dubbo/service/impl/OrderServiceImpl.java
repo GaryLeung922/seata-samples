@@ -29,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Please add the follow VM arguments:
@@ -45,6 +46,7 @@ public class OrderServiceImpl implements OrderService {
     private JdbcTemplate jdbcTemplate;
 
     @Override
+    @Transactional
     public Order create(String userId, String commodityCode, int orderCount) {
         LOGGER.info("Order Service Begin ... xid: " + RootContext.getXID());
 

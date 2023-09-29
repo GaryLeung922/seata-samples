@@ -30,11 +30,15 @@ public class DubboStockServiceStarter {
      */
     public static void main(String[] args) {
         ClassPathXmlApplicationContext stockContext = new ClassPathXmlApplicationContext(
-            new String[] {"spring/dubbo-stock-service.xml"});
+                new String[]{"spring/dubbo-stock-service.xml"});
         stockContext.getBean("service");
-        JdbcTemplate stockJdbcTemplate = (JdbcTemplate)stockContext.getBean("jdbcTemplate");
+        stockContext.getBean("stockAction");
+        JdbcTemplate stockJdbcTemplate = (JdbcTemplate) stockContext.getBean("jdbcTemplate");
         stockJdbcTemplate.update("delete from stock_tbl where commodity_code = 'C00321'");
         stockJdbcTemplate.update("insert into stock_tbl(commodity_code, count) values ('C00321', 100)");
+
+        stockJdbcTemplate.update("delete from stock_tcc where commodity_code = 'C00321'");
+        stockJdbcTemplate.update("insert into stock_tcc(commodity_code, count) values ('C00321', 100)");
         new ApplicationKeeper(stockContext).keep();
     }
 }

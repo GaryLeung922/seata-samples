@@ -16,12 +16,13 @@
 package io.seata.samples.dubbo.service.impl;
 
 import java.util.Random;
+import java.util.UUID;
 
 import io.seata.core.context.RootContext;
-import io.seata.samples.dubbo.service.BusinessService;
-import io.seata.samples.dubbo.service.OrderService;
-import io.seata.samples.dubbo.service.StockService;
+import io.seata.samples.dubbo.OrderTcc;
+import io.seata.samples.dubbo.service.*;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,10 @@ public class BusinessServiceImpl implements BusinessService {
 
     private StockService stockService;
     private OrderService orderService;
+
+    private OrderTccAction orderTccAction;
+
+    private StockTccAction stockTccAction;
     private Random random = new Random();
 
     @Override
@@ -48,9 +53,51 @@ public class BusinessServiceImpl implements BusinessService {
         //stockService.batchDeduct(commodityCode, orderCount);
         orderService.create(userId, commodityCode, orderCount);
         if (random.nextBoolean()) {
-            throw new RuntimeException("random exception mock!");
+//            throw new RuntimeException("random exception mock!");
         }
 
+    }
+
+    @Override
+    @GlobalTransactional(timeoutMills = 300000, name = "dubbo-demo-tx-tcc")
+    public void purchaseByTcc(String userId, String commodityCode, int orderCount) {
+        OrderTcc orderTcc = new OrderTcc();
+        LOGGER.info("purchase tcc begin ... xid: " + RootContext.getXID());
+        String id = UUID.randomUUID().toString();
+        orderTcc.setId(id);
+        orderTcc.setUserId(userId);
+        orderTcc.setCommodityCode(commodityCode);
+        orderTcc.setCount(orderCount);
+        orderTcc.setMoney(200 * orderCount);
+        boolean result = orderTccAction.createOrder(null, orderTcc);
+
+
+        if (random.nextBoolean()) {
+            throw new RuntimeException("random exception mock!");
+        }
+        LOGGER.info("purchase tcc succ ... xid: " + RootContext.getXID());
+    }
+
+    @Override
+    @GlobalTransactional(timeoutMills = 300000, name = "dubbo-demo-tx-tcc-2action")
+    public void purchaseByTcc2Action(String userId, String commodityCode, int orderCount) {
+        OrderTcc orderTcc = new OrderTcc();
+        LOGGER.info("purchase tcc begin ... xid: " + RootContext.getXID());
+        String id = UUID.randomUUID().toString();
+        orderTcc.setId(id);
+        orderTcc.setUserId(userId);
+        orderTcc.setCommodityCode(commodityCode);
+        orderTcc.setCount(orderCount);
+        orderTcc.setMoney(200 * orderCount);
+        boolean orderRes = orderTccAction.createOrder(null, orderTcc);
+        boolean stockRes = stockTccAction.reduceStock(null, commodityCode, orderCount);
+        if (!orderRes || !stockRes) {
+            throw new RuntimeException("tcc exception mock!");
+        }
+        if (true){
+            throw new RuntimeException("random exception mock!");
+        }
+        LOGGER.info("purchase tcc succ ... xid: " + RootContext.getXID());
     }
 
     /**
@@ -71,4 +118,16 @@ public class BusinessServiceImpl implements BusinessService {
         this.orderService = orderService;
     }
 
+    public void setOrderTccAction(OrderTccAction orderTccAction) {
+        this.orderTccAction = orderTccAction;
+    }
+
+    public void setStockTccAction(StockTccAction stockTccAction) {
+        this.stockTccAction = stockTccAction;
+    }
+
+    public static void main(String[] args) {
+        String string = UUID.randomUUID().toString();
+        System.out.println(string);
+    }
 }

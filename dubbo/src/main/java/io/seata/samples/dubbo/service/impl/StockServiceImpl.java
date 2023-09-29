@@ -16,10 +16,14 @@
 package io.seata.samples.dubbo.service.impl;
 
 import io.seata.core.context.RootContext;
+import io.seata.samples.dubbo.IdempotentUtil;
 import io.seata.samples.dubbo.service.StockService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 /**
  * Please add the follow VM arguments:
@@ -43,6 +47,7 @@ public class StockServiceImpl implements StockService {
     }
 
     @Override
+    @Transactional
     public void deduct(String commodityCode, int count) {
         LOGGER.info("Stock Service Begin ... xid: " + RootContext.getXID());
         LOGGER.info("Deducting inventory SQL: update stock_tbl set count = count - {} where commodity_code = {}", count,

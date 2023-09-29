@@ -36,10 +36,14 @@
 
     <dubbo:reference id="orderService" check="false" interface="io.seata.samples.dubbo.service.OrderService"/>
     <dubbo:reference id="stockService" check="false" interface="io.seata.samples.dubbo.service.StockService"/>
+    <dubbo:reference id="stockAction" check="false" retries="0" interface="io.seata.samples.dubbo.service.StockTccAction"/>
+    <dubbo:reference id="orderAction" check="false" retries="0" interface="io.seata.samples.dubbo.service.OrderTccAction" />
 
     <bean id="business" class="io.seata.samples.dubbo.service.impl.BusinessServiceImpl">
         <property name="orderService" ref="orderService"/>
         <property name="stockService" ref="stockService"/>
+        <property name="orderTccAction" ref="orderAction" />
+        <property name="stockTccAction" ref="stockAction" />
     </bean>
 
     <bean class="io.seata.spring.annotation.GlobalTransactionScanner">

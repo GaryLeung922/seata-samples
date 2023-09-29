@@ -20,6 +20,7 @@ import io.seata.samples.dubbo.service.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Please add the follow VM arguments:
@@ -43,6 +44,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public void debit(String userId, int money) {
         LOGGER.info("Account Service ... xid: " + RootContext.getXID());
         LOGGER.info("Deducting balance SQL: update account_tbl set money = money - {} where user_id = {}", money,

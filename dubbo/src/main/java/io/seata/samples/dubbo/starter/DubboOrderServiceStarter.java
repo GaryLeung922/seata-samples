@@ -34,6 +34,7 @@ public class DubboOrderServiceStarter {
         ClassPathXmlApplicationContext orderContext = new ClassPathXmlApplicationContext(
             new String[] {"spring/dubbo-order-service.xml"});
         orderContext.getBean("service");
+        orderContext.getBean("orderAction");
         new ApplicationKeeper(orderContext).keep();
     }
 }
